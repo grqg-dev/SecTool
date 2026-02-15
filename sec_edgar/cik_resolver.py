@@ -23,7 +23,7 @@ def _cache_is_fresh() -> bool:
 
 def _load_ticker_map(user_agent: str | None = None) -> dict:
     """
-    Return ``{TICKER: {"cik": int, "name": str, "ticker": str}, ...}``.
+    Return ``{TICKER: {"cik_str": int, "ticker": str, "title": str}, ...}``.
 
     Uses a local file cache that refreshes daily.
     """
@@ -61,7 +61,7 @@ def resolve(
     for t in tickers:
         key = t.strip().upper()
         if key in ticker_map:
-            cik = ticker_map[key]["cik"]
+            cik = ticker_map[key]["cik_str"]
             results[key] = str(cik).zfill(10)
         else:
             close = get_close_matches(key, all_tickers, n=5, cutoff=0.6)
