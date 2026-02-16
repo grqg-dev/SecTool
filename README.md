@@ -10,6 +10,7 @@ A command-line tool for retrieving SEC EDGAR filing metadata and XBRL financial 
 - Normalize variant XBRL tag names and deduplicate records
 - Output to JSON, CSV, or SQLite
 - Built-in rate limiting and retry logic for SEC API compliance
+- Browser-based data viewer for exploring downloaded data
 
 ## Requirements
 
@@ -80,6 +81,22 @@ The tool runs a four-stage pipeline for each ticker:
 2. **Filings** — Fetch filing metadata from the SEC submissions API, with pagination support.
 3. **Facts** — Retrieve XBRL financial facts from the SEC company facts API.
 4. **Normalize & Output** — Deduplicate records, normalize tag names, and write results in the selected format.
+
+## Data Viewer
+
+A browser-based viewer is included for exploring downloaded data. No extra dependencies required.
+
+```bash
+python3 serve.py        # opens on http://localhost:8000
+python3 serve.py 9000   # custom port
+```
+
+The viewer provides:
+- Sidebar to switch between downloaded tickers
+- Company metadata overview
+- Sortable, filterable, paginated tables for filings and XBRL facts
+- Human-readable currency formatting (e.g. $394.33B)
+- Direct links to filings on SEC EDGAR
 
 ## SEC API Compliance
 
