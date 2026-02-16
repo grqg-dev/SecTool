@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Would Charlie Munger Do?</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg-0: #0a0a0a;
+  --bg-1: #0f0f0f;
+  --bg-2: #161616;
+  --bg-3: #1c1c1c;
+  --bg-4: #242424;
+  --border: #2a2a2a;
+  --border-bright: #3a3a3a;
+  --text-0: #999;
+  --text-1: #b0b0b0;
+  --text-2: #d4d4d4;
+  --text-3: #e8e8e8;
+  --green: #00d26a;
+  --green-dim: #00a854;
+  --green-bg: rgba(0,210,106,0.06);
+  --amber: #f0a830;
+  --amber-dim: #c08820;
+  --red: #e84040;
+  --blue: #4a9eff;
+  --cyan: #00c8c8;
+  --mono: 'JetBrains Mono', 'IBM Plex Mono', 'Consolas', monospace;
+}
+
+html { font-size: 13px; }
+body {
+  font-family: var(--mono);
+  background: var(--bg-0);
+  color: var(--text-1);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOP BAR ────────────────────────────────────────────────── */
+.topbar {
+  height: 40px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+  gap: 12px;
+}
+.topbar-brand {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.topbar-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+}
+.topbar-info {
+  font-size: 11px;
+  color: var(--text-0);
+  letter-spacing: 0.5px;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ────────────────────────────────────────────────── */
+.sidebar {
+  width: 300px;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 16px;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.input-group label {
+  font-size: 10px;
+  color: var(--text-0);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.input-group input {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.input-group input:focus {
+  border-color: var(--green-dim);
+}
+.input-group input::placeholder {
+  color: var(--text-0);
+  letter-spacing: 0.5px;
+  text-transform: none;
+}
+
+.btn-analyze {
+  background: var(--green);
+  color: var(--bg-0);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-analyze:hover { background: var(--green-dim); }
+.btn-analyze:disabled {
+  background: var(--bg-4);
+  color: var(--text-0);
+  cursor: not-allowed;
+}
+
+/* ── STATUS PANEL ───────────────────────────────────────────── */
+.status-panel {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  display: none;
+}
+.status-panel.visible { display: block; }
+
+.status-header {
+  font-size: 10px;
+  color: var(--text-0);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.status-stage {
+  font-size: 11px;
+  color: var(--amber);
+  margin-bottom: 6px;
+}
+.status-stage.done { color: var(--green); }
+.status-stage.error { color: var(--red); }
+
+.progress-bar {
+  height: 3px;
+  background: var(--bg-4);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-fill.indeterminate {
+  width: 30%;
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
+@keyframes indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* ── JOB HISTORY ────────────────────────────────────────────── */
+.history-header {
+  font-size: 10px;
+  color: var(--text-0);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.history-item {
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.1s;
+}
+.history-item:hover { background: var(--bg-3); }
+.history-item.active { background: var(--bg-4); border-left: 2px solid var(--green); }
+.history-ticker {
+  color: var(--text-2);
+  font-weight: 500;
+}
+.history-status {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.history-status.running { color: var(--amber); }
+.history-status.complete { color: var(--green); }
+.history-status.error { color: var(--red); }
+.history-status.queued { color: var(--text-0); }
+
+/* ── MAIN CONTENT ───────────────────────────────────────────── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-0);
+}
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 1px;
+}
+.empty-sub {
+  font-size: 12px;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.7;
+}
+.empty-quote {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--amber-dim);
+  font-style: italic;
+  max-width: 480px;
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* ── REPORT RENDERING ───────────────────────────────────────── */
+.report {
+  max-width: 800px;
+  line-height: 1.8;
+}
+.report h1 {
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.report h2 {
+  color: var(--text-3);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 28px 0 10px 0;
+  letter-spacing: 0.5px;
+}
+.report h3 {
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 20px 0 8px 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.report p {
+  margin: 8px 0;
+  color: var(--text-1);
+  font-size: 12px;
+}
+.report strong { color: var(--text-3); }
+.report em { color: var(--amber); font-style: italic; }
+.report ul, .report ol {
+  margin: 8px 0 8px 20px;
+  font-size: 12px;
+}
+.report li { margin: 4px 0; }
+.report code {
+  background: var(--bg-3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--cyan);
+}
+.report pre {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-size: 11px;
+}
+.report pre code {
+  background: none;
+  padding: 0;
+  color: var(--text-1);
+}
+.report blockquote {
+  border-left: 3px solid var(--amber-dim);
+  padding: 8px 16px;
+  margin: 12px 0;
+  color: var(--text-0);
+  font-style: italic;
+}
+.report hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+.report table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 11px;
+}
+.report th {
+  background: var(--bg-3);
+  color: var(--text-2);
+  padding: 6px 10px;
+  text-align: left;
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+.report td {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  color: var(--text-1);
+}
+.report tr:hover td { background: var(--bg-2); }
+
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-brand">WWCMD</span>
+  <span class="topbar-sep"></span>
+  <span class="topbar-info">What Would Charlie Munger Do?</span>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="input-group">
+      <label>Ticker Symbol</label>
+      <input type="text" id="tickerInput" placeholder="e.g. AAPL" maxlength="10"
+             autocomplete="off" spellcheck="false">
+    </div>
+
+    <button class="btn-analyze" id="btnAnalyze" onclick="startAnalysis()">
+      Analyze
+    </button>
+
+    <div class="status-panel" id="statusPanel">
+      <div class="status-header">Current Job</div>
+      <div class="status-stage" id="statusStage">Queued...</div>
+      <div class="progress-bar">
+        <div class="progress-fill indeterminate" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="history-header">History</div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-title">WWCMD</div>
+      <div class="empty-sub">
+        Enter a stock ticker to get a Charlie Munger-style
+        analysis based on real SEC EDGAR financial data.
+      </div>
+      <div class="empty-quote">
+        "All I want to know is where I'm going to die, so I'll never go there."
+        &mdash; Charlie Munger
+      </div>
+    </div>
+    <div class="report" id="reportContent" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────
+let currentJobId = null;
+let pollTimer = null;
+const jobs = new Map(); // id → job data
+
+// ── API ──────────────────────────────────────────────────────
+const API = window.location.origin;
+
+async function apiPost(path, body) {
+  const res = await fetch(API + path, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+async function apiGet(path) {
+  const res = await fetch(API + path);
+  return res.json();
+}
+
+// ── Start Analysis ───────────────────────────────────────────
+async function startAnalysis() {
+  const input = document.getElementById('tickerInput');
+  const ticker = input.value.trim().toUpperCase();
+  if (!ticker) return;
+
+  const btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+
+  try {
+    const data = await apiPost('/api/munger/analyze', {ticker});
+    if (data.error) {
+      alert('Error: ' + data.error);
+      btn.disabled = false;
+      return;
+    }
+
+    currentJobId = data.job_id;
+    jobs.set(data.job_id, {id: data.job_id, ticker, status: 'queued', stage: 'queued'});
+    showStatus('queued');
+    renderHistory();
+    startPolling(data.job_id);
+  } catch (err) {
+    alert('Failed to start analysis: ' + err.message);
+    btn.disabled = false;
+  }
+}
+
+// ── Polling ──────────────────────────────────────────────────
+function startPolling(jobId) {
+  if (pollTimer) clearInterval(pollTimer);
+
+  pollTimer = setInterval(async () => {
+    try {
+      const job = await apiGet(`/api/munger/status/${jobId}`);
+      jobs.set(jobId, job);
+      renderHistory();
+
+      if (jobId === currentJobId) {
+        updateStatus(job);
+      }
+
+      if (job.status === 'complete' || job.status === 'error') {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        document.getElementById('btnAnalyze').disabled = false;
+
+        if (job.status === 'complete' && job.report) {
+          showReport(job.report, job.ticker);
+        }
+      }
+    } catch (err) {
+      console.error('Poll error:', err);
+    }
+  }, 2000);
+}
+
+// ── Status Display ───────────────────────────────────────────
+const STAGE_LABELS = {
+  'queued':            'Queued...',
+  'starting':          'Starting analysis...',
+  'resolving_ticker':  'Resolving ticker symbol...',
+  'fetching_data':     'Fetching SEC EDGAR data...',
+  'analyzing':         'AI is channeling Charlie Munger...',
+  'done':              'Analysis complete',
+  'failed':            'Analysis failed',
+};
+
+function stageLabel(stage) {
+  if (stage.startsWith('data_ready:')) {
+    const parts = stage.split(':')[1];
+    return `Data fetched (${parts}). Starting AI analysis...`;
+  }
+  return STAGE_LABELS[stage] || stage;
+}
+
+function showStatus(stage) {
+  const panel = document.getElementById('statusPanel');
+  panel.classList.add('visible');
+  const stageEl = document.getElementById('statusStage');
+  stageEl.textContent = stageLabel(stage);
+  stageEl.className = 'status-stage';
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill indeterminate';
+}
+
+function updateStatus(job) {
+  const panel = document.getElementById('statusPanel');
+  panel.classList.add('visible');
+
+  const stageEl = document.getElementById('statusStage');
+  stageEl.textContent = stageLabel(job.stage);
+
+  const fill = document.getElementById('progressFill');
+
+  if (job.status === 'complete') {
+    stageEl.className = 'status-stage done';
+    fill.className = 'progress-fill';
+    fill.style.width = '100%';
+  } else if (job.status === 'error') {
+    stageEl.className = 'status-stage error';
+    stageEl.textContent = 'Error: ' + (job.error || 'Unknown error');
+    fill.className = 'progress-fill';
+    fill.style.width = '100%';
+    fill.style.background = 'var(--red)';
+  } else {
+    stageEl.className = 'status-stage';
+    fill.className = 'progress-fill indeterminate';
+  }
+}
+
+// ── History ──────────────────────────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+
+  for (const [id, job] of [...jobs.entries()].reverse()) {
+    const item = document.createElement('div');
+    item.className = 'history-item' + (id === currentJobId ? ' active' : '');
+    item.onclick = () => selectJob(id);
+
+    const ticker = document.createElement('span');
+    ticker.className = 'history-ticker';
+    ticker.textContent = job.ticker;
+
+    const status = document.createElement('span');
+    status.className = 'history-status ' + (job.status || 'queued');
+    status.textContent = job.status || 'queued';
+
+    item.appendChild(ticker);
+    item.appendChild(status);
+    list.appendChild(item);
+  }
+}
+
+function selectJob(jobId) {
+  currentJobId = jobId;
+  const job = jobs.get(jobId);
+  if (!job) return;
+
+  renderHistory();
+  updateStatus(job);
+
+  if (job.status === 'complete' && job.report) {
+    showReport(job.report, job.ticker);
+  } else if (job.status === 'error') {
+    showError(job.error);
+  } else {
+    // Still running — show status, start polling
+    document.getElementById('reportContent').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'none';
+    if (!pollTimer) startPolling(jobId);
+  }
+}
+
+// ── Report Rendering ─────────────────────────────────────────
+function showReport(markdown, ticker) {
+  document.getElementById('emptyState').style.display = 'none';
+  const el = document.getElementById('reportContent');
+  el.style.display = 'block';
+  el.innerHTML = renderMarkdown(markdown);
+}
+
+function showError(error) {
+  document.getElementById('emptyState').style.display = 'none';
+  const el = document.getElementById('reportContent');
+  el.style.display = 'block';
+  el.innerHTML = `<h2 style="color:var(--red)">Analysis Failed</h2><p>${escapeHtml(error || 'Unknown error')}</p>`;
+}
+
+// ── Minimal Markdown → HTML ──────────────────────────────────
+// (No external dependency — good enough for structured reports)
+function renderMarkdown(md) {
+  let html = escapeHtml(md);
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+    `<pre><code>${code.trim()}</code></pre>`
+  );
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Headers
+  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Bold & italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Horizontal rules
+  html = html.replace(/^---+$/gm, '<hr>');
+
+  // Unordered lists
+  html = html.replace(/^(\s*)[-*] (.+)$/gm, '$1<li>$2</li>');
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+
+  // Tables
+  html = html.replace(/^(\|.+\|)\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/gm, (_, header, body) => {
+    const ths = header.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+    const rows = body.trim().split('\n').map(row => {
+      const tds = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
+  });
+
+  // Paragraphs (double newline)
+  html = html.replace(/\n\n+/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+
+  // Clean up empty paragraphs and paragraphs wrapping block elements
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  html = html.replace(/<p>\s*(<h[1-4]>)/g, '$1');
+  html = html.replace(/(<\/h[1-4]>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p>\s*(<pre>)/g, '$1');
+  html = html.replace(/(<\/pre>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p>\s*(<ul>)/g, '$1');
+  html = html.replace(/(<\/ul>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p>\s*(<table>)/g, '$1');
+  html = html.replace(/(<\/table>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p>\s*(<blockquote>)/g, '$1');
+  html = html.replace(/(<\/blockquote>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p>\s*(<hr>)/g, '$1');
+  html = html.replace(/(<hr>)\s*<\/p>/g, '$1');
+
+  return html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── Keyboard shortcut ────────────────────────────────────────
+document.getElementById('tickerInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') startAnalysis();
+});
+
+// ── Load existing jobs on page load ──────────────────────────
+(async function init() {
+  try {
+    const jobList = await apiGet('/api/munger/jobs');
+    for (const job of jobList) {
+      jobs.set(job.id, job);
+    }
+    renderHistory();
+  } catch (e) {
+    // Server might not be running yet — that's fine
+  }
+})();
+</script>
+</body>
+</html>
